@@ -1,0 +1,17 @@
+{
+  "sorted_middleware": [],
+  "middleware": {},
+  "instrumentation": {
+    "files": [
+      "server/edge/chunks/node_modules_@sentry_core_build_esm_0vvkk7n._.js",
+      "server/edge/chunks/node_modules_@sentry_conventions_dist_attributes_mjs_0v_070v._.js",
+      "server/edge/chunks/1q96_modules_@sentry_opentelemetry_build_esm_asyncContextStrategy-DfM95hx5_0o5ppm1.js",
+      "server/edge/chunks/node_modules_@sentry_vercel-edge_build_esm_index_17wt8yw.js",
+      "server/edge/chunks/node_modules_0rs8_lm._.js",
+      "server/edge/chunks/[root-of-the-server]__03ho6ai._.js",
+      "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_0ft1trt.js"
+    ],
+    "name": "instrumentation"
+  },
+  "functions": {}
+}

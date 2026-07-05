@@ -1,0 +1,13 @@
+var R=require("./chunks/[turbopack]_runtime.js")("server/instrumentation.js")
+R.c("server/chunks/[root-of-the-server]__0p8fmte._.js")
+R.c("server/chunks/node_modules_@sentry_core_build_cjs_0qmirjt._.js")
+R.c("server/chunks/node_modules_@sentry_nextjs_build_cjs_08pikhf._.js")
+R.c("server/chunks/node_modules_@sentry_node-core_build_cjs_0akgiq-._.js")
+R.c("server/chunks/node_modules_@opentelemetry_semantic-conventions_build_esm_0dldu5k._.js")
+R.c("server/chunks/node_modules_@sentry_conventions_dist_0mfx7rv._.js")
+R.c("server/chunks/node_modules_@sentry_node_build_cjs_0w8hp1f._.js")
+R.c("server/chunks/node_modules_meriyah_dist_meriyah_cjs_1489o-8._.js")
+R.c("server/chunks/[root-of-the-server]__10i6zkq._.js")
+R.c("server/chunks/[root-of-the-server]__0x97yje._.js")
+R.m("[project]/src/instrumentation.ts [instrumentation] (ecmascript)")
+module.exports=R.m("[project]/src/instrumentation.ts [instrumentation] (ecmascript)").exports
