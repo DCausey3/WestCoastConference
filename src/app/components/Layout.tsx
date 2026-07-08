@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router';
-import logo from '/src/imports/cropped-wcclologo-2.png';
+// import logo from '/src/imports/cropped-wcclologo-2.png';
 
 export default function Layout() {
   return (
@@ -8,7 +8,7 @@ export default function Layout() {
       <nav className="bg-[#0A1F44] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="WCCLO Logo" className="h-16 w-16" />
+            {/* <img src={logo} alt="WCCLO Logo" className="h-16 w-16" /> */}
           </Link>
 
           <div className="flex gap-8">
