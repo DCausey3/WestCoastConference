@@ -10,6 +10,8 @@ frontend:
     preBuild:
       commands:
         - npm ci --legacy-peer-deps
+        - env | grep -e NEXT_PUBLIC_ >> .env.production
+        - echo "SANITY_API_TOKEN=$SANITY_API_TOKEN" >> .env.production
     build:
       commands:
         - npm run build
