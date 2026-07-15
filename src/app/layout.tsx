@@ -28,6 +28,7 @@ export default function RootLayout({
                 <Link href="/about" className="text-white hover:text-[#C9A84C] transition-colors">About</Link>
                 <Link href="/officers" className="text-white hover:text-[#C9A84C] transition-colors">Officers</Link>
                 <Link href="/churches" className="text-white hover:text-[#C9A84C] transition-colors">Churches</Link>
+                  <Link href="/districts" className="text-white hover:text-[#C9A84C] transition-colors">Districts</Link>
                 <Link href="/events" className="text-white hover:text-[#C9A84C] transition-colors">Events</Link>
                 <Link href="/resources" className="text-white hover:text-[#C9A84C] transition-colors">Resources</Link>
                 <Link href="/contact" className="text-white hover:text-[#C9A84C] transition-colors">Contact</Link>
