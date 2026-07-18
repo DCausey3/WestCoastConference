@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import '@/styles/index.css';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'West Coast Conference Lay Organization',
@@ -19,9 +20,16 @@ export default function RootLayout({
           {/* Navigation Bar */}
           <nav className="bg-[#0A1F44] px-6 py-4">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
-              <Link href="/" className="flex items-center">
-                {/* <img src="/assets/cropped-wcclologo-2.png" alt="WCCLO Logo" className="h-16 w-16" /> */}
-              </Link>
+                <Link href="/" className="flex items-center">
+                    <Image
+                        src="/logo/nav-logo-256.png"
+                        alt="WCCLO Logo"
+                        width={64}
+                        height={64}
+                        className="h-16 w-16"
+                        priority
+                    />
+                </Link>
 
               <div className="flex gap-8">
                 <Link href="/" className="text-white hover:text-[#C9A84C] transition-colors">Home</Link>
@@ -34,7 +42,7 @@ export default function RootLayout({
                 <Link href="/contact" className="text-white hover:text-[#C9A84C] transition-colors">Contact</Link>
               </div>
 
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#C9A84C] transition-colors">
+              <a href="https://www.facebook.com/WestCoastLay/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#C9A84C] transition-colors">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
