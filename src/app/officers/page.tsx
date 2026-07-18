@@ -1,31 +1,61 @@
-export default function Officers() {
-  const executiveOfficers = [
-    { name: "Lolita D. Brown", title: "President" },
-    { name: "Alicia Dixon", title: "First Vice President" },
-    { name: "Robbyn Hopewell", title: "Second Vice President" },
-    { name: "G. Penny Demps", title: "Third Vice President" },
-    { name: "MacArthur Carpenter", title: "Treasurer" },
-    { name: "LaTanya Edwards", title: "Financial Secretary" },
-    { name: "Emma McGriff", title: "Recording Secretary" },
-    { name: "Carolyn Major-Harper", title: "Assistant Recording Secretary" },
-    { name: "Amarah Scott", title: "Corresponding Secretary" }
-  ];
+import { client } from '@/sanity/client';
 
-  const programOfficers = [
-    { name: "Linnell Baker", title: "Director of Lay Activities" },
-    { name: "Raven Gainous", title: "Young Adult Representative" },
-    { name: "Samuel Scott", title: "Chaplain" },
-    { name: "TBA", title: "Historiographer" },
-    { name: "Rebecca Williams", title: "Parliamentarian" },
-    { name: "Greg Bowers", title: "Director of Public Relations" },
-    { name: "Carolyn Robinson", title: "Director of Lay Benevolence (Appointed)" }
-  ];
+export const revalidate = 30;
 
-  const districtPresidents = [
-    { name: "Emily Davis", title: "Lakeland District President" },
-    { name: "Linnell Baker", title: "St. Petersburg District President" },
-    { name: "Sandra Mitchell", title: "Tampa District President" }
-  ];
+// NOTE: requires an optional `category` string field on the `officer` schema
+// in Sanity Studio with values: "executive" | "district" | "program".
+// Officers without a category (or if none exist yet) fall back to "executive".
+const OFFICERS_QUERY = `*[_type == "officer"] | order(order asc){name, title, category}`;
+const DISTRICTS_QUERY = `*[_type == "district"] | order(order asc){name, president}`;
+
+type SanityOfficer = { name: string; title: string; category?: 'executive' | 'district' | 'program' };
+type SanityDistrict = { name: string; president?: string };
+
+const fallbackExecutiveOfficers = [
+  { name: "Lolita D. Brown", title: "President" },
+  { name: "Alicia Dixon", title: "First Vice President" },
+  { name: "Robbyn Hopewell", title: "Second Vice President" },
+  { name: "G. Penny Demps", title: "Third Vice President" },
+  { name: "MacArthur Carpenter", title: "Treasurer" },
+  { name: "LaTanya Edwards", title: "Financial Secretary" },
+  { name: "Emma McGriff", title: "Recording Secretary" },
+  { name: "Carolyn Major-Harper", title: "Assistant Recording Secretary" },
+  { name: "Amarah Scott", title: "Corresponding Secretary" }
+];
+
+const fallbackProgramOfficers = [
+  { name: "Linnell Baker", title: "Director of Lay Activities" },
+  { name: "Raven Gainous", title: "Young Adult Representative" },
+  { name: "Samuel Scott", title: "Chaplain" },
+  { name: "TBA", title: "Historiographer" },
+  { name: "Rebecca Williams", title: "Parliamentarian" },
+  { name: "Greg Bowers", title: "Director of Public Relations" },
+  { name: "Carolyn Robinson", title: "Director of Lay Benevolence (Appointed)" }
+];
+
+const fallbackDistrictPresidents = [
+  { name: "Emily Davis", title: "Lakeland District President" },
+  { name: "Linnell Baker", title: "St. Petersburg District President" },
+  { name: "Sandra Mitchell", title: "Tampa District President" }
+];
+
+export default async function Officers() {
+  const [sanityOfficers, sanityDistricts]: [SanityOfficer[], SanityDistrict[]] = await Promise.all([
+    client.fetch(OFFICERS_QUERY, {}, { next: { revalidate: 30 } }),
+    client.fetch(DISTRICTS_QUERY, {}, { next: { revalidate: 30 } }),
+  ]);
+
+  const executiveOfficers = sanityOfficers?.length
+    ? sanityOfficers.filter((o) => !o.category || o.category === 'executive')
+    : fallbackExecutiveOfficers;
+
+  const programOfficers = sanityOfficers?.length
+    ? sanityOfficers.filter((o) => o.category === 'program')
+    : fallbackProgramOfficers;
+
+  const districtPresidents = sanityDistricts?.length
+    ? sanityDistricts.filter((d) => d.president).map((d) => ({ name: d.president as string, title: `${d.name} President` }))
+    : fallbackDistrictPresidents;
 
   const OfficerCard = ({ name, title }: { name: string; title: string }) => {
     // Create initials from name for placeholder

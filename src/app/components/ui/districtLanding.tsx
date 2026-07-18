@@ -2,7 +2,15 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { MapPin } from 'lucide-react';
 
-const districts = [
+type SanityDistrict = {
+    _id: string;
+    name: string;
+    slug?: { current: string };
+    description?: string;
+    counties?: string[];
+};
+
+const fallbackDistricts = [
     {
         id: 'lakeland',
         name: 'Lakeland District',
@@ -23,7 +31,24 @@ const districts = [
     },
 ];
 
-export default function Districts() {
+function slugify(name: string) {
+    return name.toLowerCase().replace(/\s+district$/i, '').trim().replace(/\s+/g, '-');
+}
+
+interface DistrictsProps {
+    districts?: SanityDistrict[];
+}
+
+export default function Districts({ districts: sanityDistricts }: DistrictsProps) {
+    const districts = sanityDistricts?.length
+        ? sanityDistricts.map((d) => ({
+            id: d.slug?.current || slugify(d.name),
+            name: d.name,
+            description: d.description || '',
+            counties: d.counties || [],
+        }))
+        : fallbackDistricts;
+
     return (
         <div className="py-20 px-6 bg-gradient-to-b from-white to-[#F4F6FA]">
             <div className="max-w-7xl mx-auto">

@@ -1,4 +1,29 @@
-export default function ConstitutionBylaws() {
+import { client } from '@/sanity/client';
+
+export const revalidate = 30;
+
+// NOTE: requires a `bylawsPage` singleton document type in Sanity Studio:
+// { wccBylawsFile: file, connectionalBylawsFile: file, districtBylawsFile: file }
+// each resolved to a downloadable URL via `asset->url`.
+const BYLAWS_QUERY = `*[_type == "bylawsPage"][0]{
+  "wccBylawsUrl": wccBylawsFile.asset->url,
+  "connectionalBylawsUrl": connectionalBylawsFile.asset->url,
+  "districtBylawsUrl": districtBylawsFile.asset->url
+}`;
+
+type BylawsPageData = {
+  wccBylawsUrl?: string;
+  connectionalBylawsUrl?: string;
+  districtBylawsUrl?: string;
+} | null;
+
+export default async function ConstitutionBylaws() {
+  const bylaws: BylawsPageData = await client.fetch(BYLAWS_QUERY, {}, { next: { revalidate: 30 } });
+
+  const wccBylawsUrl = bylaws?.wccBylawsUrl || '/assets/revised-wcc-constitution-and-bylaws-5-20-18.pdf';
+  const connectionalBylawsUrl = bylaws?.connectionalBylawsUrl || '/path-to-connectional-bylaws.pdf';
+  const districtBylawsUrl = bylaws?.districtBylawsUrl || '/path-to-11th-district-bylaws.pdf';
+
   return (
     <div className="bg-white">
       {/* Page Header */}
@@ -32,7 +57,7 @@ export default function ConstitutionBylaws() {
 
             <div className="border-2 border-[#0A1F44] rounded-lg overflow-hidden" style={{ height: '800px' }}>
               <iframe
-                src="/assets/revised-wcc-constitution-and-bylaws-5-20-18.pdf"
+                src={wccBylawsUrl}
                 className="w-full h-full"
                 title="West Coast Conference ByLaws"
               >
@@ -42,7 +67,7 @@ export default function ConstitutionBylaws() {
 
             <div className="text-center mt-6">
               <a
-                href="/assets/revised-wcc-constitution-and-bylaws-5-20-18.pdf"
+                href={wccBylawsUrl}
                 download="WCC-Constitution-and-Bylaws.pdf"
                 className="inline-block bg-[#C9A84C] text-[#0A1F44] px-8 py-3 rounded hover:bg-[#d4b76a] transition-colors uppercase tracking-wider"
                 style={{ fontSize: '14px', fontWeight: 600 }}
@@ -68,7 +93,7 @@ export default function ConstitutionBylaws() {
                 The governing document for the Connectional Lay Organization of the African Methodist Episcopal Church.
               </p>
               <a
-                href="/path-to-connectional-bylaws.pdf"
+                href={connectionalBylawsUrl}
                 download
                 className="inline-block bg-[#0A1F44] text-white px-8 py-3 rounded hover:bg-[#0d2a5a] transition-colors uppercase tracking-wider"
                 style={{ fontSize: '14px', fontWeight: 600 }}
@@ -91,7 +116,7 @@ export default function ConstitutionBylaws() {
                 The governing document for the 11th Episcopal District Lay Organization.
               </p>
               <a
-                href="/path-to-11th-district-bylaws.pdf"
+                href={districtBylawsUrl}
                 download
                 className="inline-block bg-[#0A1F44] text-white px-8 py-3 rounded hover:bg-[#0d2a5a] transition-colors uppercase tracking-wider"
                 style={{ fontSize: '14px', fontWeight: 600 }}

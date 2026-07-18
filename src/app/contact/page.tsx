@@ -1,4 +1,31 @@
-export default function Contact() {
+import { client } from '@/sanity/client';
+
+export const revalidate = 30;
+
+// NOTE: extends the existing `siteSettings` singleton in Sanity Studio with
+// optional fields: contactEmail, contactPhone, addressLines (array of strings),
+// officeHours (array of strings).
+const SETTINGS_QUERY = `*[_type == "siteSettings"][0]{contactEmail, contactPhone, addressLines, officeHours}`;
+
+type ContactSettings = {
+  contactEmail?: string;
+  contactPhone?: string;
+  addressLines?: string[];
+  officeHours?: string[];
+} | null;
+
+export default async function Contact() {
+  const settings: ContactSettings = await client.fetch(SETTINGS_QUERY, {}, { next: { revalidate: 30 } });
+
+  const email = settings?.contactEmail || 'info@wcclo.org';
+  const phone = settings?.contactPhone || '(555) 123-4567';
+  const addressLines = settings?.addressLines?.length
+    ? settings.addressLines
+    : ['West Coast Conference', 'Florida AME Church', 'Tampa, FL'];
+  const officeHours = settings?.officeHours?.length
+    ? settings.officeHours
+    : ['Monday - Friday: 9:00 AM - 5:00 PM', 'Saturday: By Appointment', 'Sunday: Closed'];
+
   return (
     <div className="bg-white">
       {/* Page Header */}
@@ -92,7 +119,7 @@ export default function Contact() {
                   <h3 className="text-[#0A1F44] mb-1" style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem' }}>
                     Email
                   </h3>
-                  <p className="text-gray-700">info@wcclo.org</p>
+                  <p className="text-gray-700">{email}</p>
                 </div>
               </div>
 
@@ -106,7 +133,7 @@ export default function Contact() {
                   <h3 className="text-[#0A1F44] mb-1" style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem' }}>
                     Phone
                   </h3>
-                  <p className="text-gray-700">(555) 123-4567</p>
+                  <p className="text-gray-700">{phone}</p>
                 </div>
               </div>
 
@@ -122,9 +149,12 @@ export default function Contact() {
                     Address
                   </h3>
                   <p className="text-gray-700">
-                    West Coast Conference<br />
-                    Florida AME Church<br />
-                    Tampa, FL
+                    {addressLines.map((line, idx) => (
+                      <span key={idx}>
+                        {line}
+                        {idx < addressLines.length - 1 && <br />}
+                      </span>
+                    ))}
                   </p>
                 </div>
               </div>
@@ -135,9 +165,12 @@ export default function Contact() {
                 Office Hours
               </h3>
               <p className="text-white/80">
-                Monday - Friday: 9:00 AM - 5:00 PM<br />
-                Saturday: By Appointment<br />
-                Sunday: Closed
+                {officeHours.map((line, idx) => (
+                  <span key={idx}>
+                    {line}
+                    {idx < officeHours.length - 1 && <br />}
+                  </span>
+                ))}
               </p>
             </div>
           </div>

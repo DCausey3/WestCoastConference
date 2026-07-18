@@ -1,30 +1,54 @@
-export default function Events() {
-  const events = [
-    {
-      title: "Annual Conference",
-      date: "June 15-17, 2026",
-      location: "Tampa, FL",
-      description: "Join us for our annual conference featuring workshops, seminars, and fellowship."
-    },
-    {
-      title: "Leadership Training",
-      date: "July 20, 2026",
-      location: "Orlando, FL",
-      description: "Develop your leadership skills and learn effective strategies for church ministry."
-    },
-    {
-      title: "District Meeting - North",
-      date: "August 5, 2026",
-      location: "Jacksonville, FL",
-      description: "North District meeting for local lay organization representatives."
-    },
-    {
-      title: "Youth Empowerment Workshop",
-      date: "September 10, 2026",
-      location: "St. Petersburg, FL",
-      description: "Equipping young people for service and leadership in the church."
-    }
-  ];
+import { client } from '@/sanity/client';
+
+export const revalidate = 30;
+
+const EVENTS_QUERY = `*[_type == "event"] | order(date asc){title, date, location, description}`;
+
+type SanityEvent = {
+  title: string;
+  date: string; // ISO date string
+  location: string;
+  description: string;
+};
+
+const fallbackEvents = [
+  {
+    title: "Annual Conference",
+    date: "June 15-17, 2026",
+    location: "Tampa, FL",
+    description: "Join us for our annual conference featuring workshops, seminars, and fellowship."
+  },
+  {
+    title: "Leadership Training",
+    date: "July 20, 2026",
+    location: "Orlando, FL",
+    description: "Develop your leadership skills and learn effective strategies for church ministry."
+  },
+  {
+    title: "District Meeting - North",
+    date: "August 5, 2026",
+    location: "Jacksonville, FL",
+    description: "North District meeting for local lay organization representatives."
+  },
+  {
+    title: "Youth Empowerment Workshop",
+    date: "September 10, 2026",
+    location: "St. Petersburg, FL",
+    description: "Equipping young people for service and leadership in the church."
+  }
+];
+
+function formatEventDate(date: string) {
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+export default async function Events() {
+  const sanityEvents: SanityEvent[] = await client.fetch(EVENTS_QUERY, {}, { next: { revalidate: 30 } });
+  const events = sanityEvents?.length
+    ? sanityEvents.map((e) => ({ ...e, date: formatEventDate(e.date) }))
+    : fallbackEvents;
 
   return (
     <div className="bg-white">

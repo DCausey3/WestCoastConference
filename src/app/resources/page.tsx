@@ -1,30 +1,44 @@
-export default function Resources() {
-  const resources = [
-    {
-      category: "Publications",
-      items: [
-        { title: "Lay Organization Handbook", type: "PDF" },
-        { title: "Monthly Newsletter", type: "PDF" },
-        { title: "Leadership Guide", type: "PDF" }
-      ]
-    },
-    {
-      category: "Training Materials",
-      items: [
-        { title: "New Member Orientation", type: "Video" },
-        { title: "Officer Training Series", type: "Video" },
-        { title: "Workshop Presentations", type: "Slides" }
-      ]
-    },
-    {
-      category: "Forms & Documents",
-      items: [
-        { title: "Membership Application", type: "Form" },
-        { title: "Event Registration Form", type: "Form" },
-        { title: "Annual Report Template", type: "Document" }
-      ]
-    }
-  ];
+import { client } from '@/sanity/client';
+
+export const revalidate = 30;
+
+// NOTE: requires a `resourceCategory` document type in Sanity Studio:
+// { category: string, order: number, items: [{ title: string, type: string, url?: string }] }
+const RESOURCES_QUERY = `*[_type == "resourceCategory"] | order(order asc){category, items}`;
+
+type ResourceItem = { title: string; type: string; url?: string };
+type ResourceCategory = { category: string; items: ResourceItem[] };
+
+const fallbackResources: ResourceCategory[] = [
+  {
+    category: "Publications",
+    items: [
+      { title: "Lay Organization Handbook", type: "PDF" },
+      { title: "Monthly Newsletter", type: "PDF" },
+      { title: "Leadership Guide", type: "PDF" }
+    ]
+  },
+  {
+    category: "Training Materials",
+    items: [
+      { title: "New Member Orientation", type: "Video" },
+      { title: "Officer Training Series", type: "Video" },
+      { title: "Workshop Presentations", type: "Slides" }
+    ]
+  },
+  {
+    category: "Forms & Documents",
+    items: [
+      { title: "Membership Application", type: "Form" },
+      { title: "Event Registration Form", type: "Form" },
+      { title: "Annual Report Template", type: "Document" }
+    ]
+  }
+];
+
+export default async function Resources() {
+  const sanityResources: ResourceCategory[] = await client.fetch(RESOURCES_QUERY, {}, { next: { revalidate: 30 } });
+  const resources = sanityResources?.length ? sanityResources : fallbackResources;
 
   return (
     <div className="bg-white">
@@ -60,7 +74,7 @@ export default function Resources() {
                 <ul className="space-y-4">
                   {category.items.map((item, itemIdx) => (
                     <li key={itemIdx}>
-                      <a href="#" className="flex items-center justify-between p-3 bg-white rounded hover:bg-[#0A1F44] hover:text-white transition-colors group">
+                      <a href={item.url || "#"} className="flex items-center justify-between p-3 bg-white rounded hover:bg-[#0A1F44] hover:text-white transition-colors group">
                         <span className="text-gray-700 group-hover:text-white">{item.title}</span>
                         <span className="text-xs bg-[#C9A84C] text-[#0A1F44] px-2 py-1 rounded">
                           {item.type}

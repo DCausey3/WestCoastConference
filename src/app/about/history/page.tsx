@@ -1,4 +1,45 @@
-export default function History() {
+import { client } from '@/sanity/client';
+
+export const revalidate = 30;
+
+// NOTE: requires a `historyPage` singleton document type in Sanity Studio:
+// { ameHistory: text, layOrgHistory: text, conferenceHistory: text,
+//   milestones: [{ year: string, description: string }] }
+const HISTORY_QUERY = `*[_type == "historyPage"][0]`;
+
+type Milestone = { year: string; description: string };
+type HistoryPageData = {
+  ameHistory?: string;
+  layOrgHistory?: string;
+  conferenceHistory?: string;
+  milestones?: Milestone[];
+} | null;
+
+const fallbackMilestones: Milestone[] = [
+  { year: '1816', description: 'African Methodist Episcopal Church founded by Richard Allen' },
+  { year: 'Present', description: 'Serving 56 local lay organizations across 8 counties in Florida' },
+];
+
+export default async function History() {
+  const history: HistoryPageData = await client.fetch(HISTORY_QUERY, {}, { next: { revalidate: 30 } });
+
+  const ameHistory = history?.ameHistory ||
+    `The African Methodist Episcopal Church was founded in 1816 by Richard Allen in Philadelphia, Pennsylvania.
+    Born out of a need for spiritual freedom and self-determination, the A.M.E. Church has grown to become
+    one of the largest and most influential African American denominations in the world.`;
+
+  const layOrgHistory = history?.layOrgHistory ||
+    `The Lay Organization has been an integral part of the A.M.E. Church's mission and ministry throughout
+    its rich history. Lay members have played crucial roles in building churches, supporting communities,
+    and advancing the Gospel message.`;
+
+  const conferenceHistory = history?.conferenceHistory ||
+    `The West Coast Conference Lay Organization serves 56 local lay organizations across three districts
+    in Florida: Lakeland, St. Petersburg, and Tampa. Together, we continue the legacy of faith, service,
+    and empowerment that has defined our church for over two centuries.`;
+
+  const milestones = history?.milestones?.length ? history.milestones : fallbackMilestones;
+
   return (
     <div className="bg-white">
       {/* Page Header */}
@@ -29,9 +70,7 @@ export default function History() {
               The African Methodist Episcopal Church
             </h2>
             <p className="text-gray-700 mb-4" style={{ fontSize: '1.125rem', lineHeight: '1.8' }}>
-              The African Methodist Episcopal Church was founded in 1816 by Richard Allen in Philadelphia, Pennsylvania.
-              Born out of a need for spiritual freedom and self-determination, the A.M.E. Church has grown to become
-              one of the largest and most influential African American denominations in the world.
+              {ameHistory}
             </p>
           </div>
 
@@ -44,9 +83,7 @@ export default function History() {
               The Lay Organization
             </h2>
             <p className="text-gray-700 mb-4" style={{ fontSize: '1.125rem', lineHeight: '1.8' }}>
-              The Lay Organization has been an integral part of the A.M.E. Church's mission and ministry throughout
-              its rich history. Lay members have played crucial roles in building churches, supporting communities,
-              and advancing the Gospel message.
+              {layOrgHistory}
             </p>
           </div>
 
@@ -59,9 +96,7 @@ export default function History() {
               The West Coast Conference
             </h2>
             <p className="text-gray-700 mb-4" style={{ fontSize: '1.125rem', lineHeight: '1.8' }}>
-              The West Coast Conference Lay Organization serves 56 local lay organizations across three districts
-              in Florida: Lakeland, St. Petersburg, and Tampa. Together, we continue the legacy of faith, service,
-              and empowerment that has defined our church for over two centuries.
+              {conferenceHistory}
             </p>
           </div>
 
@@ -74,22 +109,16 @@ export default function History() {
               Key Milestones
             </h3>
             <div className="space-y-4">
-              <div className="flex gap-4">
-                <div className="text-[#C9A84C]" style={{ fontSize: '1.5rem', fontWeight: 700, minWidth: '80px' }}>
-                  1816
+              {milestones.map((milestone, idx) => (
+                <div key={idx} className="flex gap-4">
+                  <div className="text-[#C9A84C]" style={{ fontSize: '1.5rem', fontWeight: 700, minWidth: '80px' }}>
+                    {milestone.year}
+                  </div>
+                  <p className="text-gray-700">
+                    {milestone.description}
+                  </p>
                 </div>
-                <p className="text-gray-700">
-                  African Methodist Episcopal Church founded by Richard Allen
-                </p>
-              </div>
-              <div className="flex gap-4">
-                <div className="text-[#C9A84C]" style={{ fontSize: '1.5rem', fontWeight: 700, minWidth: '80px' }}>
-                  Present
-                </div>
-                <p className="text-gray-700">
-                  Serving 56 local lay organizations across 8 counties in Florida
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </div>
