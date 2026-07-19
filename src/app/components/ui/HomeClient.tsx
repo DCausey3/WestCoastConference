@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useRef } from "react";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
+import ImageCarousel, { type GalleryImage } from './ImageCarousel';
 
 const congregationPhoto = '/assets/img_1652.jpg';
 
@@ -26,6 +27,7 @@ const urlFor = (source: SanityImageSource) =>
 type District = {
     _id: string;
     name: string;
+    slug?: { current: string };
     nickname?: string;
     president?: string;
     counties?: string[];
@@ -60,6 +62,7 @@ interface HomeClientProps {
     events: Event[];
     servedCounties: string[];
     settings: SiteSettings;
+    galleryImages: GalleryImage[];
 }
 
 export default function HomeClient({
@@ -68,6 +71,7 @@ export default function HomeClient({
                                        events,
                                        servedCounties,
                                        settings,
+                                       galleryImages,
                                    }: HomeClientProps) {
     const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -466,6 +470,13 @@ export default function HomeClient({
                     </span>
                                     ))}
                                 </div>
+                                <Link
+                                    href={`/districts/${district.slug?.current || district.name.toLowerCase().replace(/\s+district$/i, '').trim().replace(/\s+/g, '-')}`}
+                                    className="inline-block mt-4 text-[#0A1F44] hover:text-[#C9A84C] transition-colors"
+                                    style={{ fontSize: '14px', fontWeight: 600 }}
+                                >
+                                    View District →
+                                </Link>
                             </div>
                         ))}
                     </div>
@@ -475,6 +486,44 @@ export default function HomeClient({
                     <polygon points="0,100 1440,0 1440,100" fill="white" />
                 </svg>
             </section>
+
+            {/* SECTION 4.5: CONFERENCE GALLERY TEASER */}
+            {galleryImages?.length > 0 && (
+                <section className="bg-white px-6 py-24">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-12">
+                            <div className="text-[#C9A84C] mb-3" style={{
+                                fontFamily: "'Source Sans 3', sans-serif",
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                letterSpacing: '2px',
+                                textTransform: 'uppercase'
+                            }}>
+                                Moments from Our Conference
+                            </div>
+                            <h2 className="text-[#0A1F44] mb-4" style={{
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: '42px',
+                                fontWeight: 700
+                            }}>
+                                Gallery
+                            </h2>
+                        </div>
+
+                        <ImageCarousel images={galleryImages} />
+
+                        <div className="text-center">
+                            <Link
+                                href="/gallery"
+                                className="inline-block bg-[#0A1F44] text-white px-8 py-3 rounded hover:bg-[#C9A84C] hover:text-[#0A1F44] transition-colors uppercase tracking-wider"
+                                style={{ fontSize: '14px', fontWeight: 600 }}
+                            >
+                                View Full Gallery
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* SECTION 5: UPCOMING EVENTS */}
             <section className="bg-white px-6 py-24">
