@@ -6,10 +6,6 @@ import ImageCarousel, { type GalleryImage } from '../../components/ui/ImageCarou
 
 export const revalidate = 30;
 
-// Pulls the district by slug, plus any `church` documents whose `district`
-// field matches this district's name (see the `church` schema notes from
-// the resources/churches wiring — `district` there is a plain string that
-// should match `district.name` exactly, e.g. "Lakeland District").
 const DISTRICT_QUERY = `*[_type == "district" && slug.current == $id][0]{
   name,
   presider,
@@ -26,7 +22,6 @@ type SanityDistrictDetail = {
     images?: GalleryImage[];
 } | null;
 
-// Fallback data — used only if this district has no matching Sanity document yet
 const districtData = {
     'lakeland': {
         name: 'Lakeland District',
@@ -62,23 +57,28 @@ const districtData = {
 
 type DistrictId = keyof typeof districtData;
 
-// Pre-renders the three known fallback slugs at build time. If you add new
-// districts in Sanity with different slugs, they'll still render on-demand
-// via ISR (not statically at build time) since generateStaticParams only
-// knows about these three ahead of time.
-export function generateStaticParams() {
+// Next.js 15 requires the return type to match structural string param requirements
+export function generateStaticParams(): { id: string }[] {
     return Object.keys(districtData).map((id) => ({ id }));
 }
 
-export default async function DistrictDetail({ params }: { params: { id: string } }) {
+// 1. Explicitly type params as a Promise
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
+
+export default async function DistrictDetail({ params }: PageProps) {
+    // 2. Await the params object before accessing properties
+    const resolvedParams = await params;
+    const targetId = resolvedParams.id;
+
     const sanityDistrict: SanityDistrictDetail = await client.fetch(
         DISTRICT_QUERY,
-        { id: params.id },
+        { id: targetId },
         { next: { revalidate: 30 } }
     );
 
-    const fallback = districtData[params.id as DistrictId];
-
+    const fallback = districtData[targetId as DistrictId];
     const district = sanityDistrict || fallback;
 
     if (!district) {
@@ -153,8 +153,8 @@ export default async function DistrictDetail({ params }: { params: { id: string 
                                             className="bg-[#E8EDF5] text-[#0A1F44] px-4 py-2 rounded-full transition-colors hover:bg-[#0A1F44] hover:text-white"
                                             style={{ fontSize: '15px', fontWeight: 600 }}
                                         >
-                      {county}
-                    </span>
+                                            {county}
+                                        </span>
                                     ))}
                                 </div>
                             </CardContent>
