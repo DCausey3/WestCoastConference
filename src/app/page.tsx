@@ -1,7 +1,6 @@
 import { client } from "@/sanity/client";
 import HomeClient from "../app/components/ui/HomeClient";
 
-const DISTRICTS_QUERY = `*[_type == "district"] | order(order asc)`;
 const OFFICERS_QUERY = `*[_type == "officer"] | order(order asc)`;
 const EVENTS_QUERY = `*[_type == "event"] | order(date asc)`;
 const SERVED_COUNTIES_QUERY = `*[_type == "servedCounty"].countyName`;
@@ -11,8 +10,7 @@ const GALLERY_TEASER_QUERY = `*[_type == "galleryImage"] | order(order asc)[0...
 const options = { next: { revalidate: 30 } };
 
 export default async function Page() {
-    const [districts, officers, events, servedCounties, settings, galleryImages] = await Promise.all([
-        client.fetch(DISTRICTS_QUERY, {}, options),
+    const [ officers, events, servedCounties, settings, galleryImages] = await Promise.all([
         client.fetch(OFFICERS_QUERY, {}, options),
         client.fetch(EVENTS_QUERY, {}, options),
         client.fetch(SERVED_COUNTIES_QUERY, {}, options),
@@ -22,7 +20,6 @@ export default async function Page() {
 
     return (
         <HomeClient
-            districts={districts}
             officers={officers}
             events={events}
             servedCounties={servedCounties}
