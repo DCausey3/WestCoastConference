@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import ImageCarousel, { type GalleryImage } from './ImageCarousel';
@@ -23,15 +23,6 @@ const urlFor = (source: SanityImageSource) =>
     projectId && dataset
         ? createImageUrlBuilder({ projectId, dataset }).image(source)
         : null;
-
-type District = {
-    _id: string;
-    name: string;
-    slug?: { current: string };
-    nickname?: string;
-    president?: string;
-    counties?: string[];
-};
 
 type Officer = {
     _id: string;
@@ -57,7 +48,6 @@ type SiteSettings = {
 } | null;
 
 interface HomeClientProps {
-    districts: District[];
     officers: Officer[];
     events: Event[];
     servedCounties: string[];
@@ -65,8 +55,43 @@ interface HomeClientProps {
     galleryImages: GalleryImage[];
 }
 
+const OFFICERS_PREVIEW_COUNT = 5;
+
+// --- Quarterly meeting helper -------------------------------------------
+// The WCCLO meets quarterly on the last Saturday before the 5th Sunday of
+// a month. Not every month has a 5th Sunday, so we scan forward from today
+// to find the next few such months and compute that Saturday's date.
+
+function getFifthSundayMeeting(year: number, month: number): Date | null {
+    // month is 0-indexed
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const sundays: number[] = [];
+    for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
+        const date = new Date(year, month, d);
+        if (date.getDay() === 0) sundays.push(d);
+    }
+    if (sundays.length < 5) return null;
+    const fifthSunday = sundays[4];
+    const saturdayBefore = new Date(year, month, fifthSunday - 1);
+    return saturdayBefore;
+}
+
+function getUpcomingQuarterlyMeeting(from: Date = new Date()): Date | null {
+    let year = from.getFullYear();
+    let month = from.getMonth();
+    for (let i = 0; i < 24; i++) {
+        const meeting = getFifthSundayMeeting(year, month);
+        if (meeting && meeting >= from) return meeting;
+        month++;
+        if (month > 11) {
+            month = 0;
+            year++;
+        }
+    }
+    return null;
+}
+
 export default function HomeClient({
-                                       districts,
                                        officers,
                                        events,
                                        servedCounties,
@@ -97,7 +122,6 @@ export default function HomeClient({
             const svg = d3.select('#wcc-map');
             svg.selectAll('*').remove();
 
-            // Gradient fill for served counties
             const defs = svg.append('defs');
             const gradient = defs.append('linearGradient')
                 .attr('id', 'served-gradient')
@@ -106,7 +130,6 @@ export default function HomeClient({
             gradient.append('stop').attr('offset', '0%').attr('stop-color', '#E0C266');
             gradient.append('stop').attr('offset', '100%').attr('stop-color', '#B8922F');
 
-            // Soft glow filter for served counties
             const filter = defs.append('filter')
                 .attr('id', 'gold-glow')
                 .attr('x', '-50%').attr('y', '-50%')
@@ -136,7 +159,6 @@ export default function HomeClient({
                 .style('filter', (d: any) => SERVED.has(d.properties.name) ? 'url(#gold-glow)' : 'none')
                 .style('transition', 'fill-opacity 0.25s ease, stroke-width 0.25s ease');
 
-            // Subtle breathing pulse on served counties only
             function pulse(selection: any) {
                 selection
                     .transition()
@@ -193,10 +215,31 @@ export default function HomeClient({
     }, [servedCounties]);
 
     const localLayOrgsCount = settings?.localLayOrgsCount ?? 56;
-    const districtsCount = settings?.districtsCount ?? districts.length;
+    const districtsCount = settings?.districtsCount ?? 3;
     const countiesCount = settings?.countiesCount ?? servedCounties.length;
     const newsletterPdfUrl = settings?.newsletterPdfUrl ?? '#';
     const facebookUrl = settings?.facebookUrl ?? 'https://facebook.com';
+
+    // Only ever show current/future events, soonest first, and cap the list
+    // so the section never looks like a stale archive.
+    const upcomingEvents = useMemo(() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return [...events]
+            .filter((e) => new Date(e.date) >= now)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .slice(0, 6);
+    }, [events]);
+
+    const nextQuarterlyMeeting = useMemo(() => getUpcomingQuarterlyMeeting(), []);
+    const hasQuarterlyEventFromCMS = upcomingEvents.some((e) =>
+        e.title.toLowerCase().includes('quarterly')
+    );
+
+    const officersPreview = officers.slice(0, OFFICERS_PREVIEW_COUNT);
+    const hasMoreOfficers = officers.length > OFFICERS_PREVIEW_COUNT;
+
+    const showEventsSection = upcomingEvents.length > 0 || (!hasQuarterlyEventFromCMS && nextQuarterlyMeeting);
 
     return (
         <>
@@ -394,19 +437,27 @@ export default function HomeClient({
                         The West Coast Conference Lay Organization (WCCLO) serves as the teaching, training
                         and empowering body for the laity of the West Coast Conference in the 11th Episcopal
                         District of the African Methodist Episcopal Church. Comprised of {localLayOrgsCount} local lay
-                        organizations from churches in {districtsCount} Districts of the Annual Conference (Lakeland,
-                        St. Petersburg and Tampa), the WCCLO strives to provide dynamic training opportunities
-                        to its members, scholarship opportunities to our youth and fellowship opportunities
-                        to all believers in Christ.
+                        organizations from churches across the Annual Conference (Lakeland, St. Petersburg and Tampa),
+                        the WCCLO strives to provide dynamic training opportunities to its members, scholarship
+                        opportunities to our youth and fellowship opportunities to all believers in Christ.
                     </p>
 
-                    <Link
-                        href="/about"
-                        className="inline-block border-2 border-[#0A1F44] text-[#0A1F44] px-8 py-3 rounded hover:bg-[#0A1F44] hover:text-white transition-colors uppercase tracking-wider"
-                        style={{ fontSize: '14px', fontWeight: 600 }}
-                    >
-                        Our Story
-                    </Link>
+                    <div className="flex gap-4 justify-center flex-wrap">
+                        <Link
+                            href="/about"
+                            className="inline-block border-2 border-[#0A1F44] text-[#0A1F44] px-8 py-3 rounded hover:bg-[#0A1F44] hover:text-white transition-colors uppercase tracking-wider"
+                            style={{ fontSize: '14px', fontWeight: 600 }}
+                        >
+                            Our Story
+                        </Link>
+                        <Link
+                            href="/districts"
+                            className="inline-block border-2 border-[#C9A84C] text-[#0A1F44] px-8 py-3 rounded hover:bg-[#C9A84C] transition-colors uppercase tracking-wider"
+                            style={{ fontSize: '14px', fontWeight: 600 }}
+                        >
+                            Explore Our Districts
+                        </Link>
+                    </div>
 
                     <p className="mt-4 text-gray-500" style={{ fontSize: '13px' }}>
                         To learn more visit{' '}
@@ -417,77 +468,7 @@ export default function HomeClient({
                 </div>
             </section>
 
-            {/* SECTION 4: DISTRICTS */}
-            <section className="bg-[#0A1F44] relative px-6 py-24">
-                <svg className="absolute top-0 w-full" viewBox="0 0 1440 100" preserveAspectRatio="none" style={{ height: '100px' }}>
-                    <polygon points="0,0 1440,100 1440,0" fill="#F4F6FA" />
-                </svg>
-
-                <div className="max-w-7xl mx-auto pt-12">
-                    <div className="text-center mb-12">
-                        <div className="text-[#C9A84C] mb-3" style={{
-                            fontFamily: "'Source Sans 3', sans-serif",
-                            fontWeight: 600,
-                            fontSize: '12px',
-                            letterSpacing: '0.12em'
-                        }}>
-                            ANNUAL CONFERENCE DISTRICTS
-                        </div>
-                        <h2 className="text-white mx-auto" style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: '52px',
-                            fontWeight: 700,
-                            maxWidth: '800px'
-                        }}>
-                            {districts.map((d) => d.name.replace(' District', '')).join('. ')}.
-                        </h2>
-                    </div>
-
-                    <div className="grid lg:grid-cols-3 gap-8">
-                        {districts.map((district) => (
-                            <div key={district._id} className="bg-white rounded-lg p-8 border-t-4 border-[#0A1F44]">
-                                <h3 className="text-[#0A1F44] mb-2" style={{
-                                    fontFamily: "'Playfair Display', serif",
-                                    fontSize: '28px',
-                                    fontWeight: 700
-                                }}>
-                                    {district.name}
-                                </h3>
-                                {district.nickname && (
-                                    <p className="text-gray-600 mb-4 italic">"{district.nickname}"</p>
-                                )}
-                                {district.president && (
-                                    <p className="text-gray-700 mb-4"><strong>President:</strong> {district.president}</p>
-                                )}
-                                <div className="flex gap-2 flex-wrap">
-                                    {district.counties?.map((county) => (
-                                        <span
-                                            key={county}
-                                            className="bg-[#E8EDF5] text-[#0A1F44] px-3 py-1 rounded-full"
-                                            style={{ fontSize: '12px', fontWeight: 600 }}
-                                        >
-                      {county}
-                    </span>
-                                    ))}
-                                </div>
-                                <Link
-                                    href={`/districts/${district.slug?.current || district.name.toLowerCase().replace(/\s+district$/i, '').trim().replace(/\s+/g, '-')}`}
-                                    className="inline-block mt-4 text-[#0A1F44] hover:text-[#C9A84C] transition-colors"
-                                    style={{ fontSize: '14px', fontWeight: 600 }}
-                                >
-                                    View District →
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <svg className="absolute bottom-0 w-full" viewBox="0 0 1440 100" preserveAspectRatio="none" style={{ height: '100px' }}>
-                    <polygon points="0,100 1440,0 1440,100" fill="white" />
-                </svg>
-            </section>
-
-            {/* SECTION 4.5: CONFERENCE GALLERY TEASER */}
+            {/* SECTION 4: CONFERENCE GALLERY TEASER */}
             {galleryImages?.length > 0 && (
                 <section className="bg-white px-6 py-24">
                     <div className="max-w-7xl mx-auto">
@@ -525,77 +506,104 @@ export default function HomeClient({
                 </section>
             )}
 
-            {/* SECTION 5: UPCOMING EVENTS */}
-            <section className="bg-white px-6 py-24">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-12">
-                        <div className="text-[#C9A84C] mb-3" style={{
-                            fontFamily: "'Source Sans 3', sans-serif",
-                            fontWeight: 600,
-                            fontSize: '12px',
-                            letterSpacing: '0.12em'
-                        }}>
-                            WHAT'S HAPPENING
+            {/* SECTION 5: UPCOMING EVENTS (only renders when there's something current to show) */}
+            {showEventsSection && (
+                <section className="bg-white px-6 py-24">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-12">
+                            <div className="text-[#C9A84C] mb-3" style={{
+                                fontFamily: "'Source Sans 3', sans-serif",
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                letterSpacing: '0.12em'
+                            }}>
+                                WHAT'S HAPPENING
+                            </div>
+                            <h2 className="text-[#0A1F44]" style={{
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: '48px',
+                                fontWeight: 700
+                            }}>
+                                Upcoming Events & Activities
+                            </h2>
                         </div>
-                        <h2 className="text-[#0A1F44]" style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: '48px',
-                            fontWeight: 700
-                        }}>
-                            Upcoming Events & Activities
-                        </h2>
-                    </div>
 
-                    <div className="grid lg:grid-cols-3 gap-6 mb-12">
-                        {events.map((event) => {
-                            const eventDate = new Date(event.date);
-                            const dateLabel = eventDate.toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                            }).toUpperCase();
-                            const yearLabel = eventDate.getFullYear();
-
-                            return (
-                                <div key={event._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                        <div className="grid lg:grid-cols-3 gap-6 mb-12">
+                            {/* Quarterly meeting card — only shown if the CMS doesn't already
+                                have an explicit "quarterly" event listed, so we never double up. */}
+                            {!hasQuarterlyEventFromCMS && nextQuarterlyMeeting && (
+                                <div className="border-2 border-[#C9A84C] rounded-lg p-6 hover:shadow-lg transition-shadow bg-[#FBF8F0]">
                                     <div className="flex items-baseline gap-2 mb-4">
-                                        <span className="text-[#C9A84C]" style={{ fontSize: '32px', fontWeight: 700 }}>{dateLabel}</span>
-                                        <span className="text-gray-500" style={{ fontSize: '16px' }}>{yearLabel}</span>
+                                        <span className="text-[#C9A84C]" style={{ fontSize: '32px', fontWeight: 700 }}>
+                                            {nextQuarterlyMeeting.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}
+                                        </span>
+                                        <span className="text-gray-500" style={{ fontSize: '16px' }}>
+                                            {nextQuarterlyMeeting.getFullYear()}
+                                        </span>
                                     </div>
                                     <h3 className="text-[#0A1F44] mb-2" style={{
                                         fontFamily: "'Playfair Display', serif",
                                         fontSize: '22px',
                                         fontWeight: 600
                                     }}>
-                                        {event.title}
+                                        Quarterly Meeting
                                     </h3>
-                                    <p className="text-[#C9A84C] mb-3" style={{ fontSize: '14px' }}>
-                                        <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        {event.location}
-                                    </p>
                                     <p className="text-gray-700" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                                        {event.description}
+                                        Held the last Saturday before the 5th Sunday. Check back for location details.
                                     </p>
                                 </div>
-                            );
-                        })}
-                    </div>
+                            )}
 
-                    <div className="text-center mb-12">
-                        <Link
-                            href="/events"
-                            className="inline-block bg-[#0A1F44] text-white px-8 py-3 rounded hover:bg-[#0d2a5a] transition-colors uppercase tracking-wider"
-                            style={{ fontSize: '14px', fontWeight: 600 }}
-                        >
-                            View Full Calendar
-                        </Link>
-                    </div>
-                </div>
-            </section>
+                            {upcomingEvents.map((event) => {
+                                const eventDate = new Date(event.date);
+                                const dateLabel = eventDate.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                }).toUpperCase();
+                                const yearLabel = eventDate.getFullYear();
 
-            {/* SECTION 6: OFFICERS */}
+                                return (
+                                    <div key={event._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                                        <div className="flex items-baseline gap-2 mb-4">
+                                            <span className="text-[#C9A84C]" style={{ fontSize: '32px', fontWeight: 700 }}>{dateLabel}</span>
+                                            <span className="text-gray-500" style={{ fontSize: '16px' }}>{yearLabel}</span>
+                                        </div>
+                                        <h3 className="text-[#0A1F44] mb-2" style={{
+                                            fontFamily: "'Playfair Display', serif",
+                                            fontSize: '22px',
+                                            fontWeight: 600
+                                        }}>
+                                            {event.title}
+                                        </h3>
+                                        <p className="text-[#C9A84C] mb-3" style={{ fontSize: '14px' }}>
+                                            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            {event.location}
+                                        </p>
+                                        <p className="text-gray-700" style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                                            {event.description}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="text-center mb-12">
+                            <Link
+                                href="/events"
+                                className="inline-block bg-[#0A1F44] text-white px-8 py-3 rounded hover:bg-[#0d2a5a] transition-colors uppercase tracking-wider"
+                                style={{ fontSize: '14px', fontWeight: 600 }}
+                            >
+                                View Full Calendar
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* SECTION 6: OFFICERS (preview only, capped at 5) */}
             <section className="bg-white px-6 py-20">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-12">
@@ -619,8 +627,8 @@ export default function HomeClient({
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-4 gap-6 mb-8">
-                        {officers.map((officer, idx) => {
+                    <div className="grid md:grid-cols-5 gap-6 mb-8">
+                        {officersPreview.map((officer, idx) => {
                             const initials = officer.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
                             const colors = ['#0A1F44', '#1a3a5e', '#2a4a6e', '#3a5a7e'];
                             const bgColor = colors[idx % colors.length];
@@ -663,7 +671,7 @@ export default function HomeClient({
                             className="inline-block border-2 border-[#0A1F44] text-[#0A1F44] px-8 py-3 rounded hover:bg-[#0A1F44] hover:text-white transition-colors uppercase tracking-wider"
                             style={{ fontSize: '14px', fontWeight: 600 }}
                         >
-                            View All Officers
+                            {hasMoreOfficers ? 'View All Officers' : 'View Officers'}
                         </Link>
                     </div>
                 </div>
