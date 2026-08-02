@@ -42,7 +42,7 @@ const subsections = [
     {
         title: 'Leadership Structure',
         description: 'How we organize to serve effectively',
-        link: '/about/leadership',
+        link: '/officers',
         icon: '⚙️',
     },
     {

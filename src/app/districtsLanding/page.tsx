@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { client } from '@/sanity/client';
 import DistrictsLanding from "@/app/components/ui/districtsLanding";
 
-export const revalidate = 30;
-
 export const metadata: Metadata = {
     title: 'Our Districts | West Coast Conference Lay Organization',
     description:
@@ -27,7 +25,8 @@ const DISTRICTS_QUERY = `*[_type == "district"] | order(order asc){
 }`;
 
 export default async function DistrictsPage() {
-    const districts = await client.fetch(DISTRICTS_QUERY, {}, { next: { revalidate: 30 } });
+    // Always fetch live from Sanity — no caching layer to go stale for now.
+    const districts = await client.fetch(DISTRICTS_QUERY, {}, { cache: 'no-store' });
 
     return <DistrictsLanding districts={districts} />;
 }
