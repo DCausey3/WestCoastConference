@@ -451,7 +451,7 @@ export default function HomeClient({
                             Our Story
                         </Link>
                         <Link
-                            href="/districts"
+                            href="/districtsLanding"
                             className="inline-block border-2 border-[#C9A84C] text-[#0A1F44] px-8 py-3 rounded hover:bg-[#C9A84C] transition-colors uppercase tracking-wider"
                             style={{ fontSize: '14px', fontWeight: 600 }}
                         >

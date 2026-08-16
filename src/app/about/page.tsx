@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Metadata } from 'next';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
@@ -15,6 +14,11 @@ const urlFor = (source: SanityImageSource) =>
 const ABOUT_QUERY = `*[_type == "aboutPage"][0]`;
 const SETTINGS_QUERY = `*[_type == "siteSettings"][0]`;
 const DISTRICTS_QUERY = `*[_type == "district"] | order(order asc){name}`;
+
+type SiteSettings = {
+    localLayOrgsCount?: number;
+    districtsCount?: number;
+};
 
 type AboutPageData = {
     seoTitle?: string;
@@ -96,7 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function About() {
-    const [about, settings, districts]: [AboutPageData, any, { name: string }[]] = await Promise.all([
+    const [about, settings, districts]: [AboutPageData, SiteSettings, { name: string }[]] = await Promise.all([
         client.fetch(ABOUT_QUERY),
         client.fetch(SETTINGS_QUERY),
         client.fetch(DISTRICTS_QUERY),
@@ -104,10 +108,6 @@ export default async function About() {
 
     const heading = about?.heading || 'About WCCLO';
     const subheading = about?.subheading || 'Serving the AME Church Community Across Florida';
-    const photoUrl = about?.congregationPhoto
-        ? urlFor(about.congregationPhoto)?.width(1600).height(900).url()
-        : '/assets/GoupPhoto.png';
-    const photoAlt = about?.congregationPhoto?.alt || 'WCCLO Congregation Members';
 
     const localLayOrgsCount = settings?.localLayOrgsCount ?? 56;
     const districtsCount = settings?.districtsCount ?? districts.length;
@@ -196,17 +196,6 @@ export default async function About() {
                             Who We Are
                         </h2>
 
-                        {/* Congregation Photo */}
-                        {/* Congregation Photo */}
-                        <div className="mb-6 rounded-lg overflow-hidden relative" style={{ height: '400px' }}>
-                            <Image
-                                src={photoUrl!}
-                                alt={photoAlt}
-                                fill
-                                className="object-cover"
-                                priority
-                            />
-                        </div>
                         {overviewParagraphs.map((paragraph, idx) => (
                             <p
                                 key={idx}

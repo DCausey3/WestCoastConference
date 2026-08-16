@@ -1,0 +1,14 @@
+{
+  "name": "sanity-gallery-upload",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bulk-upload a folder of photos into Sanity as galleryImage documents",
+  "main": "Upload-gallery-images.js",
+  "scripts": {
+    "upload": "node upload-gallery-images.js"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.22.0",
+    "exifr": "^7.1.3"
+  }
+}
