@@ -90,7 +90,7 @@ export default function RootLayout({
                             <Link href="/about" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">About</Link>
                             <Link href="/officers" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Officers</Link>
                             <Link href="/churches" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Churches</Link>
-                            <Link href="/districts" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Districts</Link>
+                            <Link href="/districtsLanding" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Districts</Link>
                             <Link href="/events" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Events</Link>
                             <Link href="/gallery" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Gallery</Link>
                             <Link href="/resources" className="text-white/80 hover:text-[#C9A84C] transition-colors text-sm">Resources</Link>
