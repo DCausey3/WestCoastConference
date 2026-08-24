@@ -244,11 +244,10 @@ export default function HomeClient({
     return (
         <>
             {/* SECTION 1: HERO */}
-            <section className="bg-[#0A1F44] relative" style={{ minHeight: '900px' }}>
-                <div className="max-w-[1440px] mx-auto px-6 py-20 grid lg:grid-cols-[55%_45%] gap-12 items-center min-h-[900px]">
-
+            <section className="bg-[#0A1F44] relative min-h-[auto] lg:min-h-[900px]">
+                <div className="max-w-[1440px] mx-auto px-6 py-20 grid lg:grid-cols-[55%_45%] gap-12 items-center min-h-[auto] lg:min-h-[900px]">
                     {/* LEFT COLUMN */}
-                    <div style={{ paddingLeft: '120px' }}>
+                    <div className="px-0 lg:pl-[120px]">
                         <div className="text-[#C9A84C] mb-3" style={{
                             fontFamily: "'Source Sans 3', sans-serif",
                             fontWeight: 600,
@@ -261,7 +260,7 @@ export default function HomeClient({
 
                         <h1 className="text-white mb-6" style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: '72px',
+                            fontSize: 'clamp(2.25rem, 6vw, 72px)',
                             lineHeight: '1.1',
                             fontWeight: 700,
                             maxWidth: '520px'
@@ -320,11 +319,10 @@ export default function HomeClient({
                         </div>
 
                         <div
-                            className="relative border-2 border-[#C9A84C] rounded-lg overflow-hidden"
+                            className="relative border-2 border-[#C9A84C] rounded-lg overflow-hidden w-full max-w-[440px]"
                             style={{
                                 background: '#060f22',
-                                width: '440px',
-                                height: '520px',
+                                aspectRatio: '440 / 520',
                                 boxShadow: '0 8px 32px rgba(201,168,76,0.12), 0 4px 12px rgba(0,0,0,0.4)',
                             }}
                         >
