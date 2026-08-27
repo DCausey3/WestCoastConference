@@ -1,0 +1,82 @@
+/* West Coast Conference hero/header animations - shared across pages */
+.wcc-glow {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: 0.18;
+}
+.wcc-glow-1 {
+    width: 420px;
+    height: 420px;
+    top: -140px;
+    left: -80px;
+    background: #C9A84C;
+    animation: wccDrift1 14s ease-in-out infinite;
+}
+.wcc-glow-2 {
+    width: 360px;
+    height: 360px;
+    bottom: -120px;
+    right: -60px;
+    background: #3a5a8e;
+    animation: wccDrift2 16s ease-in-out infinite;
+}
+@keyframes wccDrift1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 20px); }
+}
+@keyframes wccDrift2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-25px, -15px); }
+}
+.wcc-fade-in {
+    opacity: 0;
+    animation: wccFadeIn 0.7s ease-out forwards;
+}
+@keyframes wccFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.wcc-grow-in {
+    transform: scaleX(0);
+    transform-origin: center;
+    animation: wccGrowIn 0.5s ease-out forwards;
+}
+@keyframes wccGrowIn {
+    to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .wcc-glow, .wcc-fade-in, .wcc-grow-in {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+/* District hero image reveal */
+.wcc-img-reveal {
+    animation: wccImgReveal 1.2s ease-out forwards, wccKenBurns 18s ease-in-out infinite;
+    animation-delay: 0s, 1.2s;
+}
+@keyframes wccImgReveal {
+    from { opacity: 0; transform: scale(1.08); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes wccKenBurns {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+.wcc-chip {
+    transition: all 0.25s ease;
+}
+.wcc-chip:hover {
+    background: rgba(201,168,76,0.18);
+    border-color: rgba(201,168,76,0.6);
+    transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+    .wcc-img-reveal {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

@@ -10,7 +10,8 @@ import DistrictDocuments from '../Districtdocuments';
 import DistrictContactForm from '..//Districtcontactform';
 import ScrollReveal from "@/app/districts/ ScrollReveal";
 import SectionDivider from "@/app/districts/sectionDivider";
-import {getDistrictTheme} from "@/app/districts/districtTheme";
+import { getDistrictTheme } from "@/app/districts/districtTheme";
+
 const fallbackDistrict = {
     name: 'Lakeland District',
     nickname: 'The Lively Lakeland District',
@@ -29,36 +30,52 @@ export default async function LakelandDistrictPage() {
 
     const info = district || fallbackDistrict;
     const theme = getDistrictTheme('lakeland');
-            return (
-            <div
-                className="bg-white"
-                style={{ '--navy': theme.navy, '--accent': theme.accent, '--accent-soft': theme.navySoft } as React.CSSProperties}
-            >
-                <DistrictHero district={info} fallbackHeroImage="/assets/districts/tampa-hero.jpg" />
 
-                <ScrollReveal>
+    return (
+        <div
+            className="bg-white"
+            style={{ '--navy': theme.navy, '--accent': theme.accent, '--accent-soft': theme.navySoft } as React.CSSProperties}
+        >
+            <DistrictHero district={info} fallbackHeroImage="/assets/districts/tampa-hero.jpg" />
+
+
+
+
+            <div id="events">
+                <ScrollReveal delay={0}>
                     <DistrictEvents events={events} districtName={info.name} />
                 </ScrollReveal>
+            </div>
 
-                <SectionDivider variant={theme.dividerVariant} flip background="#FFFFFF" color="#F4F6FA" />
+            <SectionDivider variant={theme.dividerVariant} flip background="#FFFFFF" color={theme.navySoft} />
 
-                <ScrollReveal>
+            <div id="officers" style={{ background: theme.navySoft }}>
+                <ScrollReveal delay={0.1}>
                     <DistrictOfficers officers={officers} districtName={info.name} />
                 </ScrollReveal>
+            </div>
 
+
+            <div id="gallery">
                 <DistrictCarousel photos={gallery} districtName={info.name} />
+            </div>
 
-                <SectionDivider variant={theme.dividerVariant} background="#FFFFFF" color="#F4F6FA" />
+            <SectionDivider variant={theme.dividerVariant} background="#FFFFFF" color={theme.navySoft} />
 
-                <ScrollReveal>
+            <div id="churches" style={{ background: theme.navySoft }}>
+                <ScrollReveal delay={0.1}>
                     <DistrictChurchCards churches={churches} districtName={info.name} />
                 </ScrollReveal>
+            </div>
 
-                <ScrollReveal>
+            <div id="scholarships">
+                <ScrollReveal delay={0.15}>
                     <DistrictScholarships scholarships={scholarships} districtName={info.name} />
                 </ScrollReveal>
+            </div>
 
-                <DistrictDocuments documents={documents} />
+            <DistrictDocuments documents={documents} />
+
             <DistrictContactForm
                 districtName={info.name}
                 contactEmail="lakeland@wcclo.org"
