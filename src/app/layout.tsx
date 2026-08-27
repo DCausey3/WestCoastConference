@@ -3,7 +3,29 @@ import Link from 'next/link';
 import '@/styles/index.css';
 import Image from 'next/image';
 import Nav from "@/app/components/ui/nav";
+import { Fraunces, Cormorant_SC, Source_Sans_3 } from 'next/font/google';
 
+const fraunces = Fraunces({
+    subsets: ['latin'],
+    variable: '--font-fraunces',
+    weight: ['500', '600'],
+    style: ['normal', 'italic'],
+    display: 'swap',
+});
+
+const cormorantSC = Cormorant_SC({
+    subsets: ['latin'],
+    variable: '--font-cormorant-sc',
+    weight: ['500', '600'],
+    display: 'swap',
+});
+
+const sourceSans = Source_Sans_3({
+    subsets: ['latin'],
+    variable: '--font-source-sans',
+    weight: ['400', '600'],
+    display: 'swap',
+});
 
 export const metadata: Metadata = {
     title: 'West Coast Conference Lay Organization',
@@ -16,8 +38,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en">
-        <body style={{ fontFamily: "'Source Sans 3', sans-serif" }}>
+        <html lang="en" className={`${fraunces.variable} ${cormorantSC.variable} ${sourceSans.variable}`}>
+        <body style={{ fontFamily: "var(--font-source-sans), sans-serif" }}>
         <div className="min-h-screen flex flex-col">
             {/* Navigation Bar */}
             <nav className=" px-6 py-4">
@@ -50,7 +72,7 @@ export default function RootLayout({
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8 border-b border-white/10">
                         <p
                             className="text-white"
-                            style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', fontWeight: 700 }}
+                            style={{ fontFamily: "var(--font-fraunces), serif", fontSize: '1.25rem', fontWeight: 700 }}
                         >
                             West Coast Conference Lay Organization
                         </p>
@@ -81,7 +103,7 @@ export default function RootLayout({
                     <div className="py-8 border-b border-white/10">
                         <h4
                             className="text-[#C9A84C] mb-4 text-center md:text-left"
-                            style={{ fontFamily: "'Playfair Display', serif" }}
+                            style={{ fontFamily: "var(--font-fraunces), serif" }}
                         >
                             Quick Links
                         </h4>
@@ -99,7 +121,7 @@ export default function RootLayout({
 
                     {/* Bottom row: tagline, copyright, credit */}
                     <div className="pt-8 text-center">
-                        <p className="text-[#C9A84C]" style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.125rem' }}>
+                        <p className="text-[#C9A84C]" style={{ fontFamily: "var(--font-fraunces), serif", fontSize: '1.125rem' }}>
                             As Lay Persons Working With God...
                         </p>
                         <p className="text-white/60 text-sm mt-2">
