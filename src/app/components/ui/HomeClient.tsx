@@ -104,7 +104,7 @@ export default function HomeClient({ officers, events, servedCounties, settings,
             <section className={`${styles.wccHero} relative overflow-hidden min-h-[600px] lg:min-h-[820px]`}>
                 <div className={`absolute inset-0 ${styles.wccKenburns}`}>
                     <Image
-                        src="/assets/hero-tampa-bay.jpg"
+                        src="/assets/hero-tampa1.jpg"
                         alt="Tampa Bay waterfront at dusk"
                         fill
                         priority

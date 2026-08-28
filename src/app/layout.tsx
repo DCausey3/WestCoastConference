@@ -43,7 +43,7 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
             {/* Navigation Bar */}
             <nav className=" px-6 py-4">
-                <div className="max-w-7xl mx-auto grid grid-cols-[auto_1fr_auto] items-center gap-6">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-6 md:grid md:grid-cols-[auto_1fr_auto]">
                     <Link href="/" className="flex items-center shrink-0">
                         <Image
                             src="/logo/logo-header-transparent.png"
@@ -57,8 +57,8 @@ export default function RootLayout({
 
                     <Nav />
 
-                    {/* spacer to balance the logo column so the nav links stay visually centered */}
-                    <div className="w-14" aria-hidden="true" />
+                    {/* spacer to balance the logo column so the nav links stay visually centered (desktop only) */}
+                    <div className="hidden md:block w-14" aria-hidden="true" />
                 </div>
             </nav>
 
