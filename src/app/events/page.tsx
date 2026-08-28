@@ -1,6 +1,6 @@
 import { client } from '@/sanity/client';
 
-export const revalidate = 30;
+
 
 // Only pull events whose date is today or later — past events drop off automatically
 // as soon as their date passes, no manual cleanup needed in Studio.

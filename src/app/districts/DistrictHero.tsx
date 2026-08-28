@@ -1,128 +1,120 @@
 import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import type { District } from './Getdistrictfulldata';
+import type { DistrictTheme } from './districtTheme';
+import HeroRule from './HeroRule';
 
 const { projectId, dataset } = client.config();
 const urlFor = (source: SanityImageSource) =>
-    projectId && dataset
-        ? createImageUrlBuilder({ projectId, dataset }).image(source)
-        : null;
+    projectId && dataset ? createImageUrlBuilder({ projectId, dataset }).image(source) : null;
 
 interface DistrictHeroProps {
     district: District;
     fallbackHeroImage: string;
+    theme: DistrictTheme;
 }
 
-export default function DistrictHero({ district, fallbackHeroImage }: DistrictHeroProps) {
+export default function DistrictHero({ district, fallbackHeroImage, theme }: DistrictHeroProps) {
     const heroUrl = district.heroImage
-        ? urlFor(district.heroImage)?.width(1200).height(1000).url()
+        ? urlFor(district.heroImage)?.width(1600).height(1200).url()
         : fallbackHeroImage;
 
+    const movementClass = {
+        kenburns: 'wcc-hero-kenburns',
+        'kenburns-slow': 'wcc-hero-kenburns-slow',
+        panright: 'wcc-hero-panright',
+    }[theme.heroMovement] ?? 'wcc-hero-kenburns';
+
     return (
-        <section className="bg-[#0A1F44] relative overflow-hidden">
-            <div className="max-w-7xl mx-auto grid lg:grid-cols-2 items-stretch">
-                {/* TEXT SIDE */}
-                <div className="px-6 lg:px-16 py-20 flex flex-col justify-center relative z-10">
-                    <div
-                        className="text-[#C9A84C] mb-4 wcc-fade-in"
-                        style={{
-                            fontFamily: "'Source Sans 3', sans-serif",
-                            fontWeight: 600,
-                            fontSize: '12px',
-                            letterSpacing: '0.15em',
-                            animationDelay: '0.05s',
-                        }}
-                    >
-                        WEST COAST CONFERENCE
-                    </div>
-                    <div
-                        className="h-0.5 w-12 bg-[#C9A84C] mb-6 wcc-grow-in"
-                        style={{ animationDelay: '0.2s' }}
-                    />
-
-                    <h1
-                        className="text-white mb-3 wcc-fade-in"
-                        style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: 'clamp(2.25rem, 4vw, 3rem)',
-                            fontWeight: 700,
-                            lineHeight: '1.1',
-                            animationDelay: '0.15s',
-                        }}
-                    >
-                        {district.name}
-                    </h1>
-
-                    {district.nickname && (
-                        <p
-                            className="text-[#C9A84C] italic mb-6 wcc-fade-in"
-                            style={{
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '1.15rem',
-                                animationDelay: '0.25s',
-                            }}
-                        >
-                            "{district.nickname}"
-                        </p>
-                    )}
-
-                    {district.description && (
-                        <p
-                            className="text-white/80 mb-8 wcc-fade-in"
-                            style={{ fontSize: '1.05rem', lineHeight: '1.7', animationDelay: '0.35s' }}
-                        >
-                            {district.description}
-                        </p>
-                    )}
-
-                    {district.counties && district.counties.length > 0 && (
-                        <div className="flex gap-2 flex-wrap wcc-fade-in" style={{ animationDelay: '0.45s' }}>
-                            {district.counties.map((county) => (
-                                <span
-                                    key={county}
-                                    className="wcc-chip bg-white/10 text-[#C9A84C] px-3 py-1.5 rounded-full text-sm border border-[#C9A84C]/30"
-                                    style={{ fontWeight: 600 }}
-                                >
-                                    {county} County
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* IMAGE SIDE */}
-                <div className="relative min-h-[360px] lg:min-h-0 overflow-hidden">
-                    <div
-                        className="absolute inset-0 bg-cover bg-center wcc-img-reveal"
-                        style={{ backgroundImage: `url(${heroUrl})` }}
-                    />
-                    {/* Horizontal fade into text side */}
-                    <div
-                        className="absolute inset-0"
-                        style={{ background: 'linear-gradient(90deg, rgba(10,31,68,0.45) 0%, rgba(10,31,68,0) 30%)' }}
-                    />
-                    {/* Bottom fade for depth, matches navy footer transitions elsewhere */}
-                    <div
-                        className="absolute inset-0"
-                        style={{ background: 'linear-gradient(180deg, rgba(10,31,68,0) 65%, rgba(10,31,68,0.5) 100%)' }}
-                    />
-                    {/* Thin gold edge separating image from text on desktop */}
-                    <div
-                        className="hidden lg:block absolute left-0 top-0 bottom-0 w-[2px]"
-                        style={{ background: 'linear-gradient(180deg, transparent, #C9A84C55, transparent)' }}
-                    />
-                </div>
+        <section
+            className="relative w-full overflow-hidden"
+            style={{ height: 'clamp(650px, 85vh, 900px)', background: theme.navy }}
+        >
+            {/* Background image with per-district movement */}
+            <div className="absolute inset-0 z-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={heroUrl}
+                    alt={district.name}
+                    className={`w-full h-full object-cover ${movementClass}`}
+                    style={{ opacity: 0.35, filter: 'contrast(1.1) brightness(0.7)' }}
+                />
             </div>
 
-            {/* Bottom divider into next section */}
-            <svg
-                className="absolute bottom-0 w-full"
-                viewBox="0 0 1440 40"
-                preserveAspectRatio="none"
-                style={{ height: '40px' }}
-            >
-                <polygon points="0,40 1440,0 1440,40" fill="white" fillOpacity="0" />
-            </svg>
+            {/* Radial fog vignette in the district's own navy */}
+            <div
+                className="absolute inset-0 z-10 pointer-events-none"
+                style={{
+                    background: `radial-gradient(ellipse 80% 60% at 50% 60%, ${theme.navy}00 20%, ${theme.navy}BF 100%)`,
+                }}
+            />
+
+            {/* Content */}
+            <div className="relative z-20 h-full flex flex-col items-center justify-center px-6 text-center">
+                <p
+                    className="uppercase mb-8 wcc-hero-fadeup"
+                    style={{
+                        color: theme.accent,
+                        fontFamily: theme.eyebrowFont,
+                        fontSize: 'clamp(0.6rem, 1.8vw, 0.85rem)',
+                        letterSpacing: '0.45em',
+                        animationDelay: '0.3s',
+                    }}
+                >
+                    West Coast Conference
+                </p>
+
+                <HeroRule theme={theme} />
+
+                <h1
+                    className="font-bold leading-none mb-8 wcc-hero-emerge"
+                    style={{
+                        fontFamily: theme.titleFont,
+                        fontSize: 'clamp(3rem, 12vw, 5.5rem)',
+                        letterSpacing: '-0.02em',
+                        animationDelay: '0.6s',
+                    }}
+                >
+                    <span className="text-white">{district.name.replace(' District', '')}</span>
+                    <span style={{ color: theme.accent }}> District</span>
+                </h1>
+
+                {district.nickname && (
+                    <p
+                        className="text-white/80 italic mb-10 wcc-hero-fadeup"
+                        style={{
+                            fontFamily: theme.titleFont,
+                            fontSize: 'clamp(0.95rem, 2.5vw, 1.25rem)',
+                            animationDelay: '1.2s',
+                        }}
+                    >
+                        "{district.nickname}"
+                    </p>
+                )}
+
+                {district.counties && district.counties.length > 0 && (
+                    <div className="flex gap-2 flex-wrap justify-center wcc-hero-fadeup" style={{ animationDelay: '1.5s' }}>
+                        {district.counties.map((county) => (
+                            <span
+                                key={county}
+                                className="px-3 py-1.5 rounded-full text-sm"
+                                style={{ background: 'rgba(255,255,255,0.1)', color: theme.accent, border: `1px solid ${theme.accent}4D`, fontWeight: 600 }}
+                            >
+                                {county} County
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Gold floor */}
+            <div
+                className="absolute bottom-0 left-0 w-full h-[3px] z-30"
+                style={{
+                    background: `linear-gradient(90deg, transparent 0%, ${theme.accent} 40%, ${theme.accent} 60%, transparent 100%)`,
+                    boxShadow: `0 -12px 40px ${theme.accent}73`,
+                }}
+            />
         </section>
     );
 }

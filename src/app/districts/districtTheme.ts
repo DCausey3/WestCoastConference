@@ -1,33 +1,44 @@
 export const districtThemes = {
     tampa: {
-        navy: '#0A1F44',        // deep navy — anchor/flagship feel
+        navy: '#0A1F44',
         navySoft: '#F4F6FA',
-        accent: '#C9A84C',      // classic gold
+        accent: '#C9A84C',
         accentDeep: '#A8863A',
         dividerVariant: 'wave' as const,
         heroTexture: 'none' as const,
-        cardTopTreatment: 'solid' as const,   // thick solid gold bar
+        cardTopTreatment: 'solid' as const,
+        heroMotif: 'diamond' as const,       // rule-line ornament shape
+        heroMovement: 'kenburns' as const,    // background animation style
+        eyebrowFont: "'Cinzel', serif",
+        titleFont: "'Lora', serif",
     },
     stpete: {
-        navy: '#123A6B',        // brighter royal blue
+        navy: '#123A6B',
         navySoft: '#EEF3FA',
-        accent: '#D4AF37',      // warmer, richer gold
+        accent: '#D4AF37',
         accentDeep: '#B8912B',
         dividerVariant: 'angle' as const,
         heroTexture: 'diagonal-lines' as const,
-        cardTopTreatment: 'gradient' as const, // gold-to-blue gradient bar
+        cardTopTreatment: 'gradient' as const,
+        heroMotif: 'wave' as const,
+        heroMovement: 'panright' as const,
+        eyebrowFont: "'Cinzel', serif",
+        titleFont: "'Playfair Display', serif",
     },
     lakeland: {
-        navy: '#0D2B52',        // cooler steel-navy
+        navy: '#0D2B52',
         navySoft: '#F0F3F7',
-        accent: '#B08D3F',      // muted antique gold
+        accent: '#B08D3F',
         accentDeep: '#8F7130',
         dividerVariant: 'zigzag' as const,
         heroTexture: 'dot-grid' as const,
-        cardTopTreatment: 'hairline' as const, // thin restrained line
+        cardTopTreatment: 'hairline' as const,
+        heroMotif: 'leaf' as const,
+        heroMovement: 'kenburns-slow' as const,
+        eyebrowFont: "'Source Sans 3', sans-serif",
+        titleFont: "'Playfair Display', serif",
     },
 } as const;
-
 export type DistrictSlug = keyof typeof districtThemes;
 export type DistrictTheme = (typeof districtThemes)[DistrictSlug];
 

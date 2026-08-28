@@ -1,3 +1,4 @@
+// tampa/page.tsx (same shape for stpete/lakeland — just swap slug, fallback, contactEmail)
 import type { Metadata } from 'next';
 import { getDistrictFullData } from '../Getdistrictfulldata';
 import DistrictHero from '../DistrictHero';
@@ -8,6 +9,7 @@ import DistrictChurchCards from '../Districtchurchcards';
 import DistrictScholarships from '../Districtscholarships';
 import DistrictDocuments from '../Districtdocuments';
 import DistrictContactForm from '../Districtcontactform';
+import DistrictQuoteBand from '../DistrictQuoteBand';
 import SectionDivider from '../sectionDivider';
 import ScrollReveal from '../ ScrollReveal';
 import { getDistrictTheme } from '../districtTheme';
@@ -32,35 +34,34 @@ export default async function TampaDistrictPage() {
     const theme = getDistrictTheme('tampa');
 
     return (
-        <div
-            className="bg-white"
-            style={{ '--navy': theme.navy, '--accent': theme.accent, '--accent-soft': theme.navySoft } as React.CSSProperties}
-        >
-            <DistrictHero district={info} fallbackHeroImage="/assets/districts/tampa-hero.jpg" />
+        <div className="bg-white">
+            <DistrictHero district={info} fallbackHeroImage="/assets/districts/tampa-hero.jpg" theme={theme} />
 
             <ScrollReveal>
-                <DistrictEvents events={events} districtName={info.name} />
+                <DistrictEvents events={events} districtName={info.name} theme={theme} />
             </ScrollReveal>
 
-            <SectionDivider variant={theme.dividerVariant} flip background="#FFFFFF" color="#F4F6FA" />
+            <SectionDivider variant={theme.dividerVariant} flip background="#FFFFFF" color={theme.navySoft} />
 
             <ScrollReveal>
-                <DistrictOfficers officers={officers} districtName={info.name} />
+                <DistrictOfficers officers={officers} districtName={info.name} theme={theme} />
             </ScrollReveal>
+
+            {info.nickname && <DistrictQuoteBand quote={info.nickname} theme={theme} />}
 
             <DistrictCarousel photos={gallery} districtName={info.name} />
 
-            <SectionDivider variant={theme.dividerVariant} background="#FFFFFF" color="#F4F6FA" />
+            <SectionDivider variant={theme.dividerVariant} background="#FFFFFF" color={theme.navySoft} />
 
             <ScrollReveal>
                 <DistrictChurchCards churches={churches} districtName={info.name} />
             </ScrollReveal>
 
             <ScrollReveal>
-                <DistrictScholarships scholarships={scholarships} districtName={info.name} />
+                <DistrictScholarships scholarships={scholarships} districtName={info.name} theme={theme} />
             </ScrollReveal>
 
-            <DistrictDocuments documents={documents} />
+            <DistrictDocuments documents={documents} theme={theme} />
 
             <DistrictContactForm
                 districtName={info.name}

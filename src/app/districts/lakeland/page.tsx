@@ -7,10 +7,11 @@ import DistrictCarousel from '../Districtcarousel';
 import DistrictChurchCards from '../Districtchurchcards';
 import DistrictScholarships from '../Districtscholarships';
 import DistrictDocuments from '../Districtdocuments';
-import DistrictContactForm from '..//Districtcontactform';
-import ScrollReveal from "@/app/districts/ ScrollReveal";
-import SectionDivider from "@/app/districts/sectionDivider";
-import { getDistrictTheme } from "@/app/districts/districtTheme";
+import DistrictContactForm from '../Districtcontactform';
+import DistrictQuoteBand from '../DistrictQuoteBand';
+import ScrollReveal from '../ ScrollReveal';
+import SectionDivider from '../sectionDivider';
+import { getDistrictTheme } from '../districtTheme';
 
 const fallbackDistrict = {
     name: 'Lakeland District',
@@ -32,18 +33,12 @@ export default async function LakelandDistrictPage() {
     const theme = getDistrictTheme('lakeland');
 
     return (
-        <div
-            className="bg-white"
-            style={{ '--navy': theme.navy, '--accent': theme.accent, '--accent-soft': theme.navySoft } as React.CSSProperties}
-        >
-            <DistrictHero district={info} fallbackHeroImage="/assets/districts/tampa-hero.jpg" />
-
-
-
+        <div className="bg-white">
+            <DistrictHero district={info} fallbackHeroImage="/assets/districts/tampa-hero.jpg" theme={theme} />
 
             <div id="events">
                 <ScrollReveal delay={0}>
-                    <DistrictEvents events={events} districtName={info.name} />
+                    <DistrictEvents events={events} districtName={info.name} theme={theme} />
                 </ScrollReveal>
             </div>
 
@@ -51,10 +46,11 @@ export default async function LakelandDistrictPage() {
 
             <div id="officers" style={{ background: theme.navySoft }}>
                 <ScrollReveal delay={0.1}>
-                    <DistrictOfficers officers={officers} districtName={info.name} />
+                    <DistrictOfficers officers={officers} districtName={info.name} theme={theme} />
                 </ScrollReveal>
             </div>
 
+            {info.nickname && <DistrictQuoteBand quote={info.nickname} theme={theme} />}
 
             <div id="gallery">
                 <DistrictCarousel photos={gallery} districtName={info.name} />
@@ -70,11 +66,11 @@ export default async function LakelandDistrictPage() {
 
             <div id="scholarships">
                 <ScrollReveal delay={0.15}>
-                    <DistrictScholarships scholarships={scholarships} districtName={info.name} />
+                    <DistrictScholarships scholarships={scholarships} districtName={info.name} theme={theme} />
                 </ScrollReveal>
             </div>
 
-            <DistrictDocuments documents={documents} />
+            <DistrictDocuments documents={documents} theme={theme} />
 
             <DistrictContactForm
                 districtName={info.name}
