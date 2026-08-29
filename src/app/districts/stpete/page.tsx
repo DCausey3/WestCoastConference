@@ -72,12 +72,12 @@ export default async function StPeteDistrictPage() {
 
             <DistrictDocuments documents={documents} theme={theme} />
 
-            <DistrictContactForm
-                districtName={info.name}
-                contactEmail="stpete@wcclo.org"
-                endpoint="https://YOUR-ENDPOINT-HERE/prod/handle"
-                orgId="stpete"
-            />
+            {/*<DistrictContactForm*/}
+            {/*    districtName={info.name}*/}
+            {/*    contactEmail="stpete@wcclo.org"*/}
+            {/*    endpoint="https://YOUR-ENDPOINT-HERE/prod/handle"*/}
+            {/*    orgId="stpete"*/}
+            {/*/>*/}
         </div>
     );
 }

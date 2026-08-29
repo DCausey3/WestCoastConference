@@ -72,12 +72,12 @@ export default async function LakelandDistrictPage() {
 
             <DistrictDocuments documents={documents} theme={theme} />
 
-            <DistrictContactForm
-                districtName={info.name}
-                contactEmail="lakeland@wcclo.org"
-                endpoint="https://YOUR-ENDPOINT-HERE/prod/handle"
-                orgId="lakeland"
-            />
+            {/*<DistrictContactForm*/}
+            {/*    districtName={info.name}*/}
+            {/*    contactEmail="lakeland@wcclo.org"*/}
+            {/*    endpoint="https://YOUR-ENDPOINT-HERE/prod/handle"*/}
+            {/*    orgId="lakeland"*/}
+            {/*/>*/}
         </div>
     );
 }

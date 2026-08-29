@@ -63,12 +63,12 @@ export default async function TampaDistrictPage() {
 
             <DistrictDocuments documents={documents} theme={theme} />
 
-            <DistrictContactForm
-                districtName={info.name}
-                contactEmail="tampa@wcclo.org"
-                endpoint="https://YOUR-ENDPOINT-HERE/prod/handle"
-                orgId="tampa"
-            />
+            {/*<DistrictContactForm*/}
+            {/*    districtName={info.name}*/}
+            {/*    contactEmail="tampa@wcclo.org"*/}
+            {/*    endpoint="https://YOUR-ENDPOINT-HERE/prod/handle"*/}
+            {/*    orgId="tampa"*/}
+            {/*/>*/}
         </div>
     );
 }
