@@ -36,7 +36,7 @@ interface HomeClientProps {
     churches: ChurchRecord[];
 }
 export default function HomeClient({ officers, events, servedCounties, settings, galleryImages, churches }: HomeClientProps) {
-    const localLayOrgsCount = settings?.localLayOrgsCount ?? 56;
+    const localLayOrgsCount = churches?.length ?? settings?.localLayOrgsCount ?? 48;
     const districtsCount = settings?.districtsCount ?? 3;
     const countiesCount = settings?.countiesCount ?? servedCounties.length;
     const newsletterPdfUrl = settings?.newsletterPdfUrl ?? '#';
