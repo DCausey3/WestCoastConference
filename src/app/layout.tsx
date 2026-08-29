@@ -4,6 +4,7 @@ import '@/styles/index.css';
 import Image from 'next/image';
 import Nav from "@/app/components/ui/nav";
 import { Fraunces, Cormorant_SC, Source_Sans_3 } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 
 const fraunces = Fraunces({
     subsets: ['latin'],
@@ -142,6 +143,7 @@ export default function RootLayout({
                 </div>
             </footer>
         </div>
+        <Analytics />
         </body>
         </html>
     );
